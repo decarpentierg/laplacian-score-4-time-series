@@ -6,3 +6,4 @@ scipy
 matplotlib
 requests
 tqdm
+dtw-python

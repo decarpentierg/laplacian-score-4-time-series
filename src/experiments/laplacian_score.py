@@ -1,13 +1,44 @@
+from dtw import dtw
 import numpy as np
 import pandas as pd
 from sklearn.metrics import pairwise_distances
 from sklearn.neighbors import kneighbors_graph
+from tqdm import tqdm
 
 from src.experiments.datasets import Dataset
 from src.utils.logs import logger
 
+def dtw_pairwise_distances(X: np.ndarray) -> np.ndarray:
+    """Computes the DTW pairwise distance between time series.
+    
+    Parameters
+    ----------
+    X: ndarray of shape (m, T) or Dataset object or Pandas DataFrame object
+        Dataset of time series
+    """
 
-def compute_weight_matrix(X, n_neighbors, sigma):
+    # Convert to np.ndarray
+    if isinstance(X, Dataset):
+        X = np.array(X.data.iloc[:, :-1])
+    if isinstance(X, pd.DataFrame):
+        X = np.array(X.iloc[:, :-1])
+    else:
+        assert isinstance(X, np.ndarray)
+
+    n_signals = X.shape[0]
+    result = np.zeros((n_signals, n_signals))
+    logger.info(f'Computing pairwise DTW distance between {n_signals} time series')    
+    
+    for idx_0 in tqdm(range(n_signals)):
+        for idx_1 in range(idx_0+1, n_signals):
+            dst = dtw(X[idx_0, :], X[idx_1, :]).distance
+            result[idx_0, idx_1] = dst
+            result[idx_1, idx_0] = dst
+
+    return result
+
+
+def compute_weight_matrix(X, n_neighbors: int = 5, sigma: float = 1.0, use_dtw: bool = True):
     """Compute weight matrix of an array of time series.
 
     Parameters
@@ -20,6 +51,9 @@ def compute_weight_matrix(X, n_neighbors, sigma):
     
     sigma: float
         corresponds to parameter t in the article
+
+    use_dtw: bool
+        whether or not to use DTW insead of euclidian distance
     
     References
     ----------
@@ -33,11 +67,13 @@ def compute_weight_matrix(X, n_neighbors, sigma):
     else:
         assert isinstance(X, np.ndarray)
 
-    logger.info(f'Comupting the weight matrix for a dataset of size {X.shape}')
+    logger.info(f'Comupting weight matrix for a ds of shape {X.shape}: n_neighbors={n_neighbors}, sigma={sigma}, use_dtw={use_dtw}')
     
     # Compute pairwise distances
-    # TODO: other types of distances
-    pw_dist = pairwise_distances(X)
+    if use_dtw:
+        pw_dist = dtw_pairwise_distances(X)
+    else:
+        pw_dist = pairwise_distances(X)
 
     # Compute k-neighbors graph
     adjacency_matrix = kneighbors_graph(X, n_neighbors)
@@ -82,9 +118,10 @@ def laplacian_score(f, S):
 
 
 if __name__ == '__main__':
-    from src.experiments.datasets import heartbeat_ds
+    from src.experiments.datasets import heartbeat_ds, diatom_ds, pressure_ds
+    dataset = diatom_ds
     n_neighbors = 5
     sigma = 0.1
-    S = compute_weight_matrix(heartbeat_ds, n_neighbors=n_neighbors, sigma=sigma)
-    scores = laplacian_score(heartbeat_ds, S)
+    S = compute_weight_matrix(dataset, n_neighbors=n_neighbors, sigma=sigma)
+    scores = laplacian_score(dataset, S)
     print(sorted(scores))
