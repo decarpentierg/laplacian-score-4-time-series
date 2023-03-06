@@ -1,1 +1,3 @@
-# laplacian-score-4-time-series
+# Laplacian score for time series
+
+Authors: Jérémie Dentan and Gonzague De Carpentier
