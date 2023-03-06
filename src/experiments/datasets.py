@@ -1,6 +1,6 @@
 """
 Datasets:
--   AbnormalHeartbeat [1]
+-   SmallKitchenAppliances [1]
 -   DiatomSizeReduction [2]
 -   PigAirwayPressure [3]
 
@@ -8,7 +8,7 @@ Datasets:
 
 References
 ----------
--   [1] UCR, Michael Flynn, https://timeseriesclassification.com/description.php?Dataset=AbnormalHeartbeat
+-   [1] Jason Lines, A. Bagnall
 -   [2] https://timeseriesclassification.com/description.php?Dataset=DiatomSizeReduction
 -   [3] M. Guillame-Bert, https://timeseriesclassification.com/description.php?Dataset=PigAirwayPressure
 """
@@ -26,12 +26,12 @@ import tsfel
 from src.utils.pathtools import project
 from src.utils.logs import logger
 
-HEARTBEAT = 'AbnormalHeartbeat'
+KITCHEN = 'SmallKitchenAppliances'
 DIATOM = 'DiatomSizeReduction'
 PRESSURE = 'PigAirwayPressure'
 DATASETS = {
     name:f'https://timeseriesclassification.com/Downloads/{name}.zip'
-    for name in [HEARTBEAT, DIATOM, PRESSURE]
+    for name in [KITCHEN, DIATOM, PRESSURE]
 }
 
 
@@ -135,6 +135,6 @@ class Dataset():
         self._features = np.array(result).transpose()
         assert self._features.shape[1] == len(self), f'Incorrect features shape: {self._features.shape[1]} != {len(self)}'
 
-heartbeat_ds = Dataset(HEARTBEAT)
+kitchen_ds = Dataset(KITCHEN)
 diatom_ds = Dataset(DIATOM)
 pressure_ds = Dataset(PRESSURE)
