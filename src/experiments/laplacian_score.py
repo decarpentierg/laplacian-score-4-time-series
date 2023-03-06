@@ -1,3 +1,5 @@
+import typing as t
+
 from dtw import dtw
 import numpy as np
 import pandas as pd
@@ -15,6 +17,11 @@ def dtw_pairwise_distances(X: np.ndarray) -> np.ndarray:
     ----------
     X: ndarray of shape (m, T) or Dataset object or Pandas DataFrame object
         Dataset of time series
+
+    Returns
+    ----------
+    distances
+        an array of shape (m, m) containing the pairwise DTW distances
     """
 
     # Convert to np.ndarray
@@ -38,7 +45,7 @@ def dtw_pairwise_distances(X: np.ndarray) -> np.ndarray:
     return result
 
 
-def compute_weight_matrix(X, n_neighbors: int = 5, sigma: float = 1.0, use_dtw: bool = True):
+def compute_weight_matrix(X, n_neighbors: int = 5, sigma: float = 1.0, use_dtw: bool = True) -> np.ndarray:
     """Compute weight matrix of an array of time series.
 
     Parameters
@@ -54,6 +61,11 @@ def compute_weight_matrix(X, n_neighbors: int = 5, sigma: float = 1.0, use_dtw: 
 
     use_dtw: bool
         whether or not to use DTW insead of euclidian distance
+
+    Returns
+    ----------
+    S: np.ndarray
+        an array of shape (m, m) corresponding to the weight matrix.
     
     References
     ----------
@@ -84,7 +96,7 @@ def compute_weight_matrix(X, n_neighbors: int = 5, sigma: float = 1.0, use_dtw: 
     return S
 
 
-def laplacian_score(f, S):
+def laplacian_score(f, S) -> t.List[float]:
     """Compute Laplacian score.
 
     Parameters
@@ -94,6 +106,11 @@ def laplacian_score(f, S):
 
     S: ndarray, shape (m, m)
         Weight matrix
+
+    Returns
+    ----------
+    scores: t.List[float]
+        The list of laplacian score of the features
 
     References
     ----------
@@ -115,6 +132,30 @@ def laplacian_score(f, S):
     num   = np.einsum('ri,rj,ij->r', f_tilde, f_tilde, L)  # numerator, shape=(n_features,)
     denom = np.einsum('ri,rj,ij->r', f_tilde, f_tilde, D)  # denominator, shape=(n_features,)
     return num / denom  # shape=(n_features,)
+
+
+def get_features_to_keep_laplacian(laplacian_score: t.List[float], n_features: int) -> t.List[int]:
+    """Gets the list of features to keep according to Laplacian score.
+
+    Parameters
+    ----------
+    laplacian_score: t.List[float]
+        The list of laplacian score of the features
+
+    n_features: t.List[float]
+        The number of features to keep
+
+    Returns 
+    ----------
+    features_index: t.List[int]
+        The list of the indexes of the features to keep
+    """
+    return sorted(
+        range(len(laplacian_score)),
+        key=lambda i: laplacian_score[i],
+        reverse=True
+    )[:n_features]
+
 
 
 if __name__ == '__main__':
