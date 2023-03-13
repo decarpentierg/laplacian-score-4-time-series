@@ -2,6 +2,7 @@ import numpy as np
 from tqdm import tqdm
 
 from dtw import dtw
+from sklearn.metrics import pairwise_distances
 
 from src.utils.logs import logger
 
@@ -11,7 +12,7 @@ def dtw_pairwise_distances(X: np.ndarray) -> np.ndarray:
     
     Parameters
     ----------
-    X: ndarray of shape (m, T) or Dataset object or Pandas DataFrame object
+    X: ndarray of shape (m, T)
         Dataset of time series
 
     Returns
@@ -42,3 +43,24 @@ def dtw_pairwise_distances(X: np.ndarray) -> np.ndarray:
             result[idx_1, idx_0] = dst
 
     return result
+
+
+def ned_pairwise_distances(X: np.ndarray) -> np.ndarray:
+    """Computes the NED pairwise distances between time series.
+    NED = Normalized Euclidian Distance
+    
+    Parameters
+    ----------
+    X: ndarray of shape (m, T)
+        Dataset of time series
+
+    Returns
+    -------
+    distances
+        an array of shape (m, m) containing the pairwise NED distances
+    """
+
+    m = X.shape[0]
+    logger.info(f'Computing pairwise NED distance between {m} time series')
+    Xn = (X - X.mean(axis=1, keepdims=True)) / X.std(axis=1, keepdims=True)
+    return pairwise_distances(Xn)

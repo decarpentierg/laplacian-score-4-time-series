@@ -17,10 +17,10 @@ sum_fileHandler.setFormatter(logFormatter)
 sum_fileHandler.setLevel(logging.INFO)
 logger.addHandler(sum_fileHandler)
 
-consoleHandler = logging.StreamHandler(sys.stdout)
-consoleHandler.setFormatter(logFormatter)
-consoleHandler.setLevel(logging.DEBUG)
-logger.addHandler(consoleHandler)
+# consoleHandler = logging.StreamHandler(sys.stdout)
+# consoleHandler.setFormatter(logFormatter)
+# consoleHandler.setLevel(logging.DEBUG)
+# logger.addHandler(consoleHandler)
 
 # Silent unuseful log
 import warnings

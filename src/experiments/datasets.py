@@ -27,7 +27,7 @@ import tsfel
 from src.utils.pathtools import project
 from src.utils.logs import logger
 
-from src.experiments.pairwise_distances import dtw_pairwise_distances
+from src.experiments.pairwise_distances import dtw_pairwise_distances, ned_pairwise_distances
 
 
 KITCHEN = 'SmallKitchenAppliances'
@@ -37,7 +37,9 @@ DATASETS = {
     name:f'https://timeseriesclassification.com/Downloads/{name}.zip'
     for name in [KITCHEN, DIATOM, PRESSURE]
 }
-DISK_FILE = 'dtw_distance_matrix_{dataset}.pkl'
+DTW_DM_PATH = 'dtw_distance_matrix_{dataset}.pkl'
+NED_DM_PATH = 'ned_distance_matrix_{dataset}.pkl'
+FEATURES_PATH = 'features_{dataset}.pkl'
 
 
 class Dataset():
@@ -49,6 +51,7 @@ class Dataset():
         self._data = None
         self._features = None
         self._dtw_distance_matrix = None
+        self._ned_distance_matrix = None
         self._dir_path = project.data / self.name
         self._zip_path = project.data / f'{self.name}.zip'
 
@@ -74,11 +77,18 @@ class Dataset():
         if self._dtw_distance_matrix is None:
             self._get_dtw_distance_matrix()
         return self._dtw_distance_matrix
+
+    @property
+    def ned_distance_matrix(self) -> np.ndarray:
+        """Returns an np.ndarray of shape (m, m), where m is the number of time series."""
+        if self._ned_distance_matrix is None:
+            self._get_ned_distance_matrix()
+        return self._ned_distance_matrix
     
     def __len__(self):
         return len(self.data.index)
     
-# -------------------- GET DATA ---------------------
+    # -------------------- GET DATA ---------------------
 
     def _get_data(self):
         """Gets data and load it in self._data"""
@@ -132,27 +142,37 @@ class Dataset():
             ignore_index=True,
         )
 
-# -------------------- GET DATA ---------------------
+    # -------------------- GET FEATURES AND DISTANCE MATRICES ---------------------
 
     def _get_features(self):
         """Extracts the features with tsfel"""
         logger.info(f'Extracting the features of {len(self)} time series')
-        result = list()
-        for index in tqdm(range(len(self))):
-            serie = self.data.iloc[index, :-1]
-            cfg = tsfel.get_features_by_domain()
-            result.append(np.squeeze(
-                tsfel.time_series_features_extractor(cfg, serie, verbose=0).values
-            ))
-
-        self._features = np.array(result).transpose()
-        assert self._features.shape[1] == len(self), f'Incorrect features shape: {self._features.shape[1]} != {len(self)}'
+        file_path = project.saved_dataset_attributes / FEATURES_PATH.format(dataset = self.name)
+        if file_path.exists():  # check if file exists
+            with file_path.open('rb') as f:
+                self._features = pickle.load(f)
+        else:  
+            # if not, compute features
+            result = list()
+            for index in tqdm(range(len(self))):
+                serie = self.data.iloc[index, :-1]
+                cfg = tsfel.get_features_by_domain()
+                result.append(np.squeeze(
+                    tsfel.time_series_features_extractor(cfg, serie, verbose=0).values
+                ))
+            # assign to attribute features
+            self._features = np.array(result).transpose()
+            # check features shape
+            assert self._features.shape[1] == len(self), f'Incorrect features shape: {self._features.shape[1]} != {len(self)}'
+            # save features
+            with file_path.open('wb') as f:
+                pickle.dump(self._features, f)
     
     def _get_dtw_distance_matrix(self):
         """Compute the DTW distance matrix"""
         logger.info(f'Getting the DTW distance matrix with dataset {self.name}')
         # Looking on the disk
-        file_path = project.output / DISK_FILE.format(dataset = self.name)
+        file_path = project.saved_dataset_attributes / DTW_DM_PATH.format(dataset = self.name)
         if file_path.exists():
             with file_path.open('rb') as f:
                 self._dtw_distance_matrix = pickle.load(f)
@@ -160,6 +180,19 @@ class Dataset():
             self._dtw_distance_matrix = dtw_pairwise_distances(np.array(self.data.iloc[:, :-1]))
             with file_path.open('wb') as f:
                 pickle.dump(self._dtw_distance_matrix, f)
+    
+    def _get_ned_distance_matrix(self):
+        """Compute the NED distance matrix"""
+        logger.info(f'Getting the NED distance matrix with dataset {self.name}')
+        # Looking on the disk
+        file_path = project.saved_dataset_attributes / NED_DM_PATH.format(dataset = self.name)
+        if file_path.exists():
+            with file_path.open('rb') as f:
+                self._ned_distance_matrix = pickle.load(f)
+        else:
+            self._ned_distance_matrix = ned_pairwise_distances(np.array(self.data.iloc[:, :-1]))
+            with file_path.open('wb') as f:
+                pickle.dump(self._ned_distance_matrix, f)
 
 kitchen_ds = Dataset(KITCHEN)
 diatom_ds = Dataset(DIATOM)

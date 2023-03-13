@@ -96,6 +96,7 @@ def laplacian_score(f, S) -> t.List[float]:
     f_tilde = f - mean[:, np.newaxis]  # shape=(n_features, m)
     num   = np.einsum('ri,rj,ij->r', f_tilde, f_tilde, L)  # numerator, shape=(n_features,)
     denom = np.einsum('ri,rj,ij->r', f_tilde, f_tilde, D)  # denominator, shape=(n_features,)
+    denom[denom==0.] = 1e-10  # to avoid division by zero
     return num / denom  # shape=(n_features,)
 
 

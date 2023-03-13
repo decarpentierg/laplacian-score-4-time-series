@@ -61,6 +61,10 @@ class CustomizedPath():
     @property
     def data(self):
         return self.mkdir_if_not_exists(self.root / 'data', gitignore=True)
+    
+    @property
+    def saved_dataset_attributes(self):
+        return self.mkdir_if_not_exists(self.root / 'saved_dataset_attributes', gitignore=True)
 
     @property
     def output(self):
