@@ -15,6 +15,7 @@ References
 
 import sys
 import zipfile
+import pickle
 
 import pandas as pd
 import numpy as np
@@ -26,6 +27,9 @@ import tsfel
 from src.utils.pathtools import project
 from src.utils.logs import logger
 
+from src.experiments.pairwise_distances import dtw_pairwise_distances
+
+
 KITCHEN = 'SmallKitchenAppliances'
 DIATOM = 'DiatomSizeReduction'
 PRESSURE = 'PigAirwayPressure'
@@ -33,6 +37,7 @@ DATASETS = {
     name:f'https://timeseriesclassification.com/Downloads/{name}.zip'
     for name in [KITCHEN, DIATOM, PRESSURE]
 }
+DISK_FILE = 'dtw_distance_matrix_{dataset}.pkl'
 
 
 class Dataset():
@@ -43,6 +48,7 @@ class Dataset():
         self.name = name
         self._data = None
         self._features = None
+        self._dtw_distance_matrix = None
         self._dir_path = project.data / self.name
         self._zip_path = project.data / f'{self.name}.zip'
 
@@ -61,6 +67,13 @@ class Dataset():
         if self._features is None:
             self._get_features()
         return self._features
+
+    @property
+    def dtw_distance_matrix(self) -> np.ndarray:
+        """Returns an np.ndarray of shape (m, m), where m is the number of time series."""
+        if self._dtw_distance_matrix is None:
+            self._get_dtw_distance_matrix()
+        return self._dtw_distance_matrix
     
     def __len__(self):
         return len(self.data.index)
@@ -134,6 +147,19 @@ class Dataset():
 
         self._features = np.array(result).transpose()
         assert self._features.shape[1] == len(self), f'Incorrect features shape: {self._features.shape[1]} != {len(self)}'
+    
+    def _get_dtw_distance_matrix(self):
+        """Compute the DTW distance matrix"""
+        logger.info(f'Getting the DTW distance matrix with dataset {self.name}')
+        # Looking on the disk
+        file_path = project.output / DISK_FILE.format(dataset = self.name)
+        if file_path.exists():
+            with file_path.open('rb') as f:
+                self._dtw_distance_matrix = pickle.load(f)
+        else:
+            self._dtw_distance_matrix = dtw_pairwise_distances(np.array(self.data.iloc[:, :-1]))
+            with file_path.open('wb') as f:
+                pickle.dump(self._dtw_distance_matrix, f)
 
 kitchen_ds = Dataset(KITCHEN)
 diatom_ds = Dataset(DIATOM)
