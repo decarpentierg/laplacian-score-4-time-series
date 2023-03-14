@@ -60,7 +60,7 @@ class Dataset():
     @property
     def data(self) -> pd.DataFrame:
         """Returns a pd.DataFrame of shape (m, T) 
-        where m is the numpyer of time series and T the number of timestamp in the series."""
+        where m is the number of time series and T the number of timestamp in the series."""
         if self._data is None:
             self._get_data()
         return self._data

@@ -9,11 +9,14 @@ from src.experiments.datasets import Dataset
 from src.experiments.pairwise_distances import dtw_pairwise_distances
 from src.utils.logs import logger
 
+DEFAULT_SIGMA = 1.0
+DEFAULT_N_NEIGHBORS = 5
+
 
 def compute_weight_matrix(
         X,
-        n_neighbors: int = 5,
-        sigma: float = 1.0,
+        n_neighbors: int = DEFAULT_N_NEIGHBORS,
+        sigma: float = DEFAULT_SIGMA,
         precomputed_distances: np.ndarray = None
     ) -> np.ndarray:
     """Compute weight matrix of an array of time series.
@@ -49,7 +52,7 @@ def compute_weight_matrix(
     else:
         assert isinstance(X, np.ndarray)
 
-    logger.info(f'Comupting weight matrix for a ds of shape {X.shape}: n_neighbors={n_neighbors}, sigma={sigma}')
+    logger.debug(f'Comupting weight matrix for a ds of shape {X.shape}: n_neighbors={n_neighbors}, sigma={sigma}')
     
     # Compute pairwise distances
     if precomputed_distances is None:
@@ -58,7 +61,13 @@ def compute_weight_matrix(
         pw_dist = precomputed_distances
 
     # Compute k-neighbors graph
-    adjacency_matrix = kneighbors_graph(X, n_neighbors)
+    adjacency_matrix = kneighbors_graph(
+        pw_dist,
+        n_neighbors,
+        metric='precomputed',
+        mode='connectivity',
+        include_self = False,
+    )
 
     # Compute weight matrix
     S = adjacency_matrix * np.exp(-pw_dist**2 / (2 * sigma**2))
@@ -92,7 +101,7 @@ def laplacian_score(f, S) -> t.List[float]:
     else:
         assert isinstance(f, np.ndarray)
 
-    logger.info(f'Computing the Laplacian Score of {f.shape[0]} features belonging to {f.shape[1]} time series')
+    logger.debug(f'Computing the Laplacian Score of {f.shape[0]} features belonging to {f.shape[1]} time series')
 
     d = np.sum(S, axis=1)  # diagonal of matrix D in the article, shape=(m,)
     D = np.diag(d)  # shape=(m, m)
@@ -109,17 +118,18 @@ class LaplacianSelection(object):
 
     def __init__(
             self,
-            ds_name: str,
+            dataset: Dataset,
             n_features: int,
             use_dtw: bool = True,
-            **weight_matrix_kwargs
+            sigma: float = DEFAULT_SIGMA,
+            n_neighbors: int = DEFAULT_N_NEIGHBORS,
         ) -> None:
         """Initiates a Feature Selection object, usable in a sklearn.Pipeline.
 
         Parameters
         ----------
-        ds_name: str
-            The name of the dataset for which this feature selector is built
+        dataset: Dataset
+            The dataset for which the feature selector is built
 
         n_features: int
             The number of features to keep
@@ -127,29 +137,36 @@ class LaplacianSelection(object):
         use_dtw: int
             If true, the DTW distance will be used. Else, it will be the euclidian distance.
 
-        weight_matrix_kwargs: Any
-            Kwargs to be passed to compute_weight_matrix, such as `sigma` or `n_neighbors`.
+        sigma: float
+            The `sigma` parameter of `compute_weight_matrix`
+
+        n_neighbors: int
+            The `n_neighbors` parameter of `compute_weight_matrix`
         
         """
-        self._dataset = Dataset(ds_name)
-        self._n_features = n_features
+        self.dataset = dataset
+        self.n_features = n_features
+        self.use_dtw = use_dtw
+        self.sigma = sigma
+        self.n_neighbors = n_neighbors
         
         # Precomputed distances between the series 
         if use_dtw:
-            self._precomputed_distances = self._dataset.dtw_distance_matrix
+            self._precomputed_distances = self.dataset.dtw_distance_matrix
         else:
-            self._precomputed_distances = self._dataset.ned_distance_matrix
+            self._precomputed_distances = self.dataset.ned_distance_matrix
 
         # Weight matrix
         self._weight_matrix = compute_weight_matrix(
-            self._dataset,
+            self.dataset,
             precomputed_distances=self._precomputed_distances,
-            **weight_matrix_kwargs,
+            sigma=sigma,
+            n_neighbors=n_neighbors
         )
 
         # Laplacian scores
         self._laplacian_scores = laplacian_score(
-            self._dataset,
+            self.dataset,
             self._weight_matrix,
         )
 
@@ -158,11 +175,11 @@ class LaplacianSelection(object):
     
     def transform(self, X:np.ndarray) -> np.ndarray:
         """Returns the array, keeping only the relevant columns."""
-        logger.info(f'Using Laplacian score to select features from dataset {self._dataset.name}')
+        logger.debug(f'Using Laplacian score to select features from dataset {self.dataset.name}')
         columns_to_keep = sorted(
             range(len(self._laplacian_scores)),
             key=lambda i: self._laplacian_scores[i],
             reverse=True
-        )[:self._n_features]
+        )[:self.n_features]
 
-        return X[columns_to_keep]
+        return X[:, columns_to_keep]

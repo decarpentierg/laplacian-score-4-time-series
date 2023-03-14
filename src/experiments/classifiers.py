@@ -1,11 +1,12 @@
 import typing as t
 
 import numpy as np
+from sklearn.feature_selection import SelectFromModel
 from sklearn.metrics import accuracy_score, recall_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 
 
 def get_svc_accuracy(
@@ -26,6 +27,7 @@ def get_svc_accuracy(
     :returns: The tupple (precision, recall)
     """
     m = features.shape[0]
+    
     clf = make_pipeline(
         StandardScaler(),
         feature_selector,
@@ -34,7 +36,7 @@ def get_svc_accuracy(
     clf.fit(features[:m//2], labels[:m//2])
     preds = clf.predict(features[m//2:])
     acc = accuracy_score(labels[m//2:], preds)
-    rec = recall_score(labels[m//2:], preds, average='weighted')
+    rec = recall_score(labels[m//2:], preds, average='weighted', zero_division=1)
 
     return acc, rec
 
@@ -57,6 +59,7 @@ def get_knn_accuracy(
     :returns: The tupple (precision, recall)
     """
     m = features.shape[0]
+
     clf = make_pipeline(
         StandardScaler(),
         feature_selector,
@@ -65,6 +68,6 @@ def get_knn_accuracy(
     clf.fit(features[:m//2], labels[:m//2])
     preds = clf.predict(features[m//2:])
     acc = accuracy_score(labels[m//2:], preds)
-    rec = recall_score(labels[m//2:], preds, average='weighted')
+    rec = recall_score(labels[m//2:], preds, average='weighted', zero_division=1)
 
     return acc, rec

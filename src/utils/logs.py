@@ -25,3 +25,6 @@ logger.addHandler(consoleHandler)
 # Silent unuseful log
 import warnings
 warnings.filterwarnings('ignore', message=r'Using default sampling frequency')
+warnings.filterwarnings('ignore', message=r'Features.*are constant')
+warnings.filterwarnings('ignore', message=r'invalid value encountered in divide')
+
