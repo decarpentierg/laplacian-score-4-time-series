@@ -40,6 +40,7 @@ DATASETS = {
 DTW_DM_PATH = 'dtw_distance_matrix_{dataset}.pkl'
 NED_DM_PATH = 'ned_distance_matrix_{dataset}.pkl'
 FEATURES_PATH = 'features_{dataset}.pkl'
+LABELS_COLUMN = 'target'
 
 
 class Dataset():
@@ -49,6 +50,7 @@ class Dataset():
         logger.info(f'More info at https://timeseriesclassification.com/description.php?Dataset={name}')
         self.name = name
         self._data = None
+        self._labels = None
         self._features = None
         self._dtw_distance_matrix = None
         self._ned_distance_matrix = None
@@ -62,6 +64,14 @@ class Dataset():
         if self._data is None:
             self._get_data()
         return self._data
+    
+    @property
+    def labels(self) -> np.array:
+        """Returns a np.ndarray of shape (m) where m is the number of time series.
+        The dtype of this array is `int`."""
+        if self._labels is None:
+            self._labels = np.asarray(self.data[LABELS_COLUMN].values, dtype=int)
+        return self._labels
     
     @property
     def features(self) -> np.ndarray:
@@ -197,3 +207,12 @@ class Dataset():
 kitchen_ds = Dataset(KITCHEN)
 diatom_ds = Dataset(DIATOM)
 pressure_ds = Dataset(PRESSURE)
+
+if __name__ == '__main__':
+    # Builds the datasets cache
+    _ = kitchen_ds.features
+    _ = kitchen_ds.dtw_distance_matrix
+    _ = diatom_ds.features
+    _ = diatom_ds.dtw_distance_matrix
+    _ = pressure_ds.features
+    _ = pressure_ds.dtw_distance_matrix
