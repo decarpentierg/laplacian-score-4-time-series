@@ -17,12 +17,12 @@ def get_features_labels_and_selectors() -> t.Dict[str, t.Tuple[np.ndarray, np.nd
     result = dict()
     for ds in [kitchen_ds, diatom_ds, pressure_ds]:
 
-        for n_features in [50, 100, 150]:
+        for n_features in [10, 50, 100, 150]:
 
             # Multiple parameters for Laplacian feature selection
             for use_dtw in [True, False]:
                 for sigma_factor in [0.001, 0.01,0.1, 1]:
-                    for num_neighbors in [3,5,10, 20]:
+                    for num_neighbors in [5,10,20,30]:
                         result[f'{ds.name}_laplacian_nfeat={n_features}_dtw={use_dtw}_sigma={sigma_factor}_neigh={num_neighbors}'] = (
                             ds.features.T,
                             ds.labels,

@@ -8,7 +8,7 @@ Datasets:
 
 References
 ----------
--   [1] Jason Lines, A. Bagnall
+-   [1] Jason Lines, A. Bagnall, https://timeseriesclassification.com/description.php?Dataset=SmallKitchenAppliances
 -   [2] https://timeseriesclassification.com/description.php?Dataset=DiatomSizeReduction
 -   [3] M. Guillame-Bert, https://timeseriesclassification.com/description.php?Dataset=PigAirwayPressure
 """

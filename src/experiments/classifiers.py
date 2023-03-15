@@ -36,7 +36,7 @@ def get_svc_accuracy(
     clf.fit(features[:m//2], labels[:m//2])
     preds = clf.predict(features[m//2:])
     acc = accuracy_score(labels[m//2:], preds)
-    rec = recall_score(labels[m//2:], preds, average='weighted', zero_division=1)
+    rec = recall_score(labels[m//2:], preds, average='weighted', zero_division=0)
 
     return acc, rec
 
@@ -68,6 +68,6 @@ def get_knn_accuracy(
     clf.fit(features[:m//2], labels[:m//2])
     preds = clf.predict(features[m//2:])
     acc = accuracy_score(labels[m//2:], preds)
-    rec = recall_score(labels[m//2:], preds, average='weighted', zero_division=1)
+    rec = recall_score(labels[m//2:], preds, average='weighted', zero_division=0)
 
     return acc, rec
