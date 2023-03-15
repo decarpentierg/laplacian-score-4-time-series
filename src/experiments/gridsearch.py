@@ -30,7 +30,7 @@ def get_features_labels_and_selectors() -> t.Dict[str, t.Tuple[np.ndarray, np.nd
                                 ds,
                                 n_features=n_features,
                                 use_dtw=use_dtw,
-                                sigma = kitchen_ds.dtw_distance_matrix.mean() * sigma_factor,
+                                sigma = ds.dtw_distance_matrix.mean() * sigma_factor,
                                 n_neighbors = num_neighbors,
                             ),
                         )
