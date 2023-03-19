@@ -33,9 +33,13 @@ from src.experiments.pairwise_distances import dtw_pairwise_distances, ned_pairw
 KITCHEN = 'SmallKitchenAppliances'
 DIATOM = 'DiatomSizeReduction'
 PRESSURE = 'PigAirwayPressure'
+COFFEE = 'Coffee'
+EARTHQUAKES = 'Earthquakes'
+WAFER = 'Wafer'
+WORMS = 'WormsTwoClass'
 DATASETS = {
     name:f'https://timeseriesclassification.com/Downloads/{name}.zip'
-    for name in [KITCHEN, DIATOM, PRESSURE]
+    for name in [KITCHEN, DIATOM, PRESSURE, COFFEE, EARTHQUAKES, WAFER, WORMS]
 }
 DTW_DM_PATH = 'dtw_distance_matrix_{dataset}.pkl'
 NED_DM_PATH = 'ned_distance_matrix_{dataset}.pkl'
@@ -204,15 +208,15 @@ class Dataset():
             with file_path.open('wb') as f:
                 pickle.dump(self._ned_distance_matrix, f)
 
-kitchen_ds = Dataset(KITCHEN)
-diatom_ds = Dataset(DIATOM)
-pressure_ds = Dataset(PRESSURE)
+earthquakes_ds = Dataset(EARTHQUAKES)
+wafer_ds = Dataset(WAFER)
+worms_ds = Dataset(WORMS)
 
 if __name__ == '__main__':
     # Builds the datasets cache
-    _ = kitchen_ds.features
-    _ = kitchen_ds.dtw_distance_matrix
-    _ = diatom_ds.features
-    _ = diatom_ds.dtw_distance_matrix
-    _ = pressure_ds.features
-    _ = pressure_ds.dtw_distance_matrix
+    _ = earthquakes_ds.features
+    _ = earthquakes_ds.dtw_distance_matrix
+    _ = wafer_ds.features
+    _ = wafer_ds.dtw_distance_matrix
+    _ = worms_ds.features
+    _ = worms_ds.dtw_distance_matrix

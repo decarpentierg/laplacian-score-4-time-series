@@ -8,14 +8,14 @@ from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_classif
 
 from src.utils.logs import logger
 from src.utils.pathtools import project
-from src.experiments.datasets import kitchen_ds, diatom_ds, pressure_ds
+from src.experiments.datasets import earthquakes_ds, wafer_ds, worms_ds
 from src.experiments.laplacian_score import LaplacianSelection
 from src.experiments.classifiers import get_knn_accuracy, get_svc_accuracy
 
 
 def get_features_labels_and_selectors() -> t.Dict[str, t.Tuple[np.ndarray, np.ndarray, t.Any]]:
     result = dict()
-    for ds in [kitchen_ds, diatom_ds, pressure_ds]:
+    for ds in [earthquakes_ds, wafer_ds, worms_ds]:
 
         for n_features in [10, 50, 100, 150]:
 
