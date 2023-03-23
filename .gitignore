@@ -1,6 +1,8 @@
 # Customized
 *.DS_Store
+.vscode/
 perso/
+old/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

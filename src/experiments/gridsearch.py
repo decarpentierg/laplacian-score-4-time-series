@@ -8,9 +8,47 @@ from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_classif
 
 from src.utils.logs import logger
 from src.utils.pathtools import project
-from src.experiments.datasets import earthquakes_ds, wafer_ds, worms_ds
+from src.experiments.datasets import Dataset, earthquakes_ds, wafer_ds, worms_ds
 from src.experiments.laplacian_score import LaplacianSelection
 from src.experiments.classifiers import get_knn_accuracy, get_svc_accuracy
+
+
+class VarianceSelection(object):
+
+    """Similar to `sklearn.feature_selection.VarianceThreshold`, but using
+    a number of features instead of a variance threshold."""
+
+    def __init__(
+        self,
+        dataset: Dataset,
+        n_features: int,
+    ) -> None:
+        
+        self.dataset = dataset
+        self.n_features = n_features
+
+    def fit(self, X:np.ndarray, y:np.ndarray=None):
+        self.variance = np.nanvar(self.dataset.features, axis = 1)
+        self.threshold = np.partition(self.variance, -self.n_features)[-self.n_features]
+        return self
+    
+    def transform(self, X:np.ndarray) -> np.ndarray:
+        return X[:, self.variance >= self.threshold]
+    
+
+def get_variance_threshold(
+    dataset: Dataset,
+    n_features: int,
+) -> float:
+    """Compute a variance threshold so that there is only the desired number of features
+    whose variance are greater or equal.
+    
+    :param dataset: The dataset
+    :param n_features: The desired number of features
+    :returns: The variance threshold"""
+
+    variance = np.var(dataset.features, axis = 1)
+    return np.partition(variance, -n_features)[-n_features]
 
 
 def get_features_labels_and_selectors() -> t.Dict[str, t.Tuple[np.ndarray, np.ndarray, t.Any]]:
@@ -39,7 +77,7 @@ def get_features_labels_and_selectors() -> t.Dict[str, t.Tuple[np.ndarray, np.nd
             result[f'{ds.name}_fclassif_nfeat={n_features}'] = (
                 ds.features.T,
                 ds.labels,
-                SelectKBest(f_classif, k=n_features) #.fit_transform(ds.features.T, ds.labels),
+                SelectKBest(f_classif, k=n_features)
             )
 
 
@@ -48,7 +86,7 @@ def get_features_labels_and_selectors() -> t.Dict[str, t.Tuple[np.ndarray, np.nd
             result[f'{ds.name}_variance_threshold={threshold}'] = (
                 ds.features.T,
                 ds.labels,
-                VarianceThreshold(threshold=threshold)
+                VarianceThreshold(threshold=get_variance_threshold(ds, n_features))
             )
 
         # No feature selection 

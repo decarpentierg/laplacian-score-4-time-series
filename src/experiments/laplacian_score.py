@@ -149,9 +149,11 @@ class LaplacianSelection(object):
         self.use_dtw = use_dtw
         self.sigma = sigma
         self.n_neighbors = n_neighbors
+
+    def fit(self, X:np.ndarray, y:np.ndarray=None):
         
         # Precomputed distances between the series 
-        if use_dtw:
+        if self.use_dtw:
             self._precomputed_distances = self.dataset.dtw_distance_matrix
         else:
             self._precomputed_distances = self.dataset.ned_distance_matrix
@@ -160,8 +162,8 @@ class LaplacianSelection(object):
         self._weight_matrix = compute_weight_matrix(
             self.dataset,
             precomputed_distances=self._precomputed_distances,
-            sigma=sigma,
-            n_neighbors=n_neighbors
+            sigma=self.sigma,
+            n_neighbors=self.n_neighbors
         )
 
         # Laplacian scores
@@ -170,7 +172,6 @@ class LaplacianSelection(object):
             self._weight_matrix,
         )
 
-    def fit(self, X:np.ndarray, y:np.ndarray=None):
         return self
     
     def transform(self, X:np.ndarray) -> np.ndarray:

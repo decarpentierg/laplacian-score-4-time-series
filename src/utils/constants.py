@@ -1,0 +1,6 @@
+KITCHEN = 'SmallKitchenAppliances'
+DIATOM = 'DiatomSizeReduction'
+PRESSURE = 'PigAirwayPressure'
+EARTHQUAKES = 'Earthquakes'
+WAFER = 'Wafer'
+WORMS = 'WormsTwoClass'

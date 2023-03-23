@@ -24,11 +24,11 @@ def dtw_pairwise_distances(X: np.ndarray) -> np.ndarray:
     n_signals = X.shape[0]
     signals_len = X.shape[1]
     result = np.zeros((n_signals, n_signals))
-    logger.info(f'Computing pairwise DTW distance between {n_signals} time series')    
+    logger.debug(f'Computing pairwise DTW distance between {n_signals} time series')    
     
     # sakoechiba for too long series
     if signals_len > 500:
-        logger.info(f'Too long series, switching to sakoechiba windows for the DTW')
+        logger.debug(f'Too long series, switching to sakoechiba windows for the DTW')
         dtw_kwargs = {
             'window_type':'sakoechiba',
             'window_args':{'window_size':100},
@@ -61,6 +61,6 @@ def ned_pairwise_distances(X: np.ndarray) -> np.ndarray:
     """
 
     m = X.shape[0]
-    logger.info(f'Computing pairwise NED distance between {m} time series')
+    logger.debug(f'Computing pairwise NED distance between {m} time series')
     Xn = (X - X.mean(axis=1, keepdims=True)) / X.std(axis=1, keepdims=True)
     return pairwise_distances(Xn)
