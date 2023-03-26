@@ -67,7 +67,7 @@ def compute_weight_matrix(
         metric='precomputed',
         mode='connectivity',
         include_self = False,
-    )
+    ).toarray()  # /!\ result of kneighbors_graph is a sparse matrix /!\
 
     # Compute weight matrix
     S = adjacency_matrix * np.exp(-pw_dist**2 / (2 * sigma**2))
@@ -106,7 +106,7 @@ def laplacian_score(f, S) -> t.List[float]:
     d = np.sum(S, axis=1)  # diagonal of matrix D in the article, shape=(m,)
     D = np.diag(d)  # shape=(m, m)
     L = D - S  # shape=(m, m)
-    mean = np.sum(f * d, axis=1) / np.sum(d) # shape=(m,)
+    mean = np.sum(f * d, axis=1) / max(np.sum(d), 1e-10) # shape=(m,), avoid division by 0
     f_tilde = f - mean[:, np.newaxis]  # shape=(n_features, m)
     num   = np.einsum('ri,rj,ij->r', f_tilde, f_tilde, L)  # numerator, shape=(n_features,)
     denom = np.einsum('ri,rj,ij->r', f_tilde, f_tilde, D)  # denominator, shape=(n_features,)
