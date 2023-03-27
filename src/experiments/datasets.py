@@ -218,7 +218,21 @@ if __name__ == '__main__':
     # Builds the datasets cache
     _ = earthquakes_ds.features
     _ = earthquakes_ds.dtw_distance_matrix
+    _ = earthquakes_ds.ned_distance_matrix
     _ = wafer_ds.features
     _ = wafer_ds.dtw_distance_matrix
+    _ = wafer_ds.ned_distance_matrix
     _ = worms_ds.features
     _ = worms_ds.dtw_distance_matrix
+    _ = worms_ds.ned_distance_matrix
+
+    # Same for previous DS
+    _ = Dataset(KITCHEN).features
+    _ = Dataset(KITCHEN).dtw_distance_matrix
+    _ = Dataset(KITCHEN).ned_distance_matrix
+    _ = Dataset(PRESSURE).features
+    _ = Dataset(PRESSURE).dtw_distance_matrix
+    _ = Dataset(PRESSURE).ned_distance_matrix
+    _ = Dataset(DIATOM).features
+    _ = Dataset(DIATOM).dtw_distance_matrix
+    _ = Dataset(DIATOM).ned_distance_matrix
