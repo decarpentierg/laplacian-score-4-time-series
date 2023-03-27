@@ -14,10 +14,8 @@ This repository contains the implentation of the work of the author for a paper 
 
 For details about this review, please refer to:
 
-- Our report: [https://github.com/decarpentierg/laplacian-score-4-time-series/blob/main/doc/report.pdf](https://github.com/decarpentierg/
-laplacian-score-4-time-series/blob/main/doc/report.pdf)
-- Our slides [https://github.com/decarpentierg/laplacian-score-4-time-series/blob/main/doc/defense.pdf](https://github.com/decarpentierg/
-laplacian-score-4-time-series/blob/main/doc/defense.pdf)
+- Our report: [https://github.com/decarpentierg/laplacian-score-4-time-series/blob/main/doc/report.pdf](https://github.com/decarpentierg/laplacian-score-4-time-series/blob/main/doc/report.pdf)
+- Our slides [https://github.com/decarpentierg/laplacian-score-4-time-series/blob/main/doc/defense.pdf](https://github.com/decarpentierg/laplacian-score-4-time-series/blob/main/doc/defense.pdf)
 - The original paper: [https://proceedings.neurips.cc/paper/2005/hash/b5b03f06271f8917685d14cea7c6c50a-Abstract.html](https://proceedings.neurips.cc/paper/2005/hash/b5b03f06271f8917685d14cea7c6c50a-Abstract.html)
 
 ## Re-running our experiments
