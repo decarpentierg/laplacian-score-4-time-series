@@ -1,0 +1,9 @@
+numpy
+pandas
+scikit-learn
+tsfel
+scipy
+matplotlib
+requests
+tqdm
+dtw-python
