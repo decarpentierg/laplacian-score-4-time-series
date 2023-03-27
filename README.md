@@ -5,7 +5,7 @@ Authors: Jérémie Dentan and Gonzague De Carpentier
 <p align="center">
   <img src="figures/accuracy_vs_n_features.png"
   alt="Teaser"
-  width=100%/>
+  width=50%/>
 </p>
 
 ## Overview
